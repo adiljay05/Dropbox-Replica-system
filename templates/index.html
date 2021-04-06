@@ -22,6 +22,12 @@
 		<hr>
 		{% if session['name'] %}
             <p>{{ session['name'] }}</p>
+            <form action="/add_directory" method="post">
+                Directory Name: <input type="text" required placeholder="Enter directory Name" name="dir_name"/>
+                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                <input type="submit" value="Add"/>
+            </form>
+            <hr>
 		{% elif error_message %}
 		<p>Error Message: {{ error_message }}</p>
 		{% endif %}
