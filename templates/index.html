@@ -28,22 +28,46 @@
                 <input type="submit" value="Add"/>
             </form>
             <hr>
-            
-            <table>
+            <div align=center>
+                Current Directory: {{ cur_dir }}
+            </div>
+            <table align="center">
                 <th>Sr. No.</th>
                 <th>Name</th>
                 <th>Actions</th>
+                {% if cur_dir!="/" %}
+                    <tr>
+                        <td colspan="3">
+                            <form action="/go_to_previous_directory" id="back_form" method="POST">
+                                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                                <a href="#" onclick="document.getElementById('back_form').submit()">..</a>
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
                 {% for i in dir_list %}
                 <tr>
+                    <td>{{ loop.index }}</td>
                     <td>
-                        {{ i['directory_name'] }}
+                        <form action="/change_dir" id="form{{ loop.index }}" method="POST">
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <input type="hidden" name="directory_name" value="{{ i['directory_name'] }}">
+                            <a href="#" onclick="document.getElementById('form{{ loop.index }}').submit()"> {{ i['directory_name'] }} </a>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/delete_directory" method="POST">
+                            <input type="hidden" name="dir_name" value="{{ i['directory_name'] }}">
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <input type="submit" class="btn btn-danger" value="Delete">
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
                 {% for i in file_list %}
                 <tr>
                     <td>
-                        {{ i.name }}
+                        {{ i['file_name'] }}
                     </td>
                 </tr>
                 {% endfor %}
