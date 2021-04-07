@@ -101,3 +101,38 @@ def check_existance_of_directory(path,dir_name,cur_user):
             return True
         print(d.name)
     return False
+
+def get_root_directory(email):
+    entity_key = datastore_client.key('UserInfoForAssignment3', email)
+    cur_user = datastore_client.get(entity_key)
+    return cur_user['root_directory']
+
+def get_directories_from_datastore():
+    cur_user = retrieveUserInfo(session['email'])
+    directory_list = cur_user['directory_list']
+    dir_list = []
+    for d in directory_list:
+        directory_key = datastore_client.key('DirectoryInfo', d.name)
+        dir_list.append(datastore_client.get(directory_key))
+    return dir_list
+
+def get_files_from_datastore():
+    cur_user = retrieveUserInfo(session['email'])
+    files_list = cur_user['directory_list']
+    file_list = []
+    for f in files_list:
+        file_key = datastore_client.key('FileInfo', f.name)
+        file_list.append(datastore_client.get(file_key))
+    return file_list
+
+
+def get_files_and_directories_at_current_path(path):
+    directory_list = []
+    file_list = []
+    blob_list = blobList(path)
+    for i in blob_list:
+        if i.name[len(i.name) - 1] == '/':
+            directory_list.append(i)
+        else:
+            file_list.append(i)
+    return [directory_list,file_list]

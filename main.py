@@ -49,7 +49,8 @@ def root():
     else:
         id_token = request.cookies.get("token")
         error_message = None
-        rooms_list = None
+        dir_list = None
+        file_list = None
         if id_token:
             try:
                 claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
@@ -58,6 +59,9 @@ def root():
                     root_directory_id = functions.createUserInfo(claims)
                     functions.create_directory_in_cloud_storage("","",str(root_directory_id)+"/")
                 user_info = functions.retrieveUserInfo(claims['email'])
+                data = functions.get_files_and_directories_at_current_path(functions.get_root_directory(claims['email'])+"/")
+                dir_list = functions.get_directories_from_datastore()
+                file_list = data[1]
                 session['name'] = claims['name']
                 session['email'] = claims['email']
             except ValueError as exc:
@@ -65,7 +69,7 @@ def root():
         else:
             session['name'] = None
             session['email'] = None
-        return render_template('index.html', error_message=error_message,cur_dir = "/")
+        return render_template('index.html', error_message=error_message,cur_dir = "/",dir_list = dir_list,file_list =file_list)
 
 
 if __name__ == '__main__':

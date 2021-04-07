@@ -28,6 +28,27 @@
                 <input type="submit" value="Add"/>
             </form>
             <hr>
+            
+            <table>
+                <th>Sr. No.</th>
+                <th>Name</th>
+                <th>Actions</th>
+                {% for i in dir_list %}
+                <tr>
+                    <td>
+                        {{ i['directory_name'] }}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% for i in file_list %}
+                <tr>
+                    <td>
+                        {{ i.name }}
+                    </td>
+                </tr>
+                {% endfor %}
+                
+            </table>
 		{% elif error_message %}
 		<p>Error Message: {{ error_message }}</p>
 		{% endif %}
