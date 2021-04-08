@@ -123,6 +123,13 @@ def check_duplicates_entire_storage():
     duplicates = functions.get_duplicates(cur_user['root_directory']+"/")
     return render_template('duplicates.html',msg="Duplicates in Entire User Storage",duplicates = duplicates)
 
+@app.route('/check_duplicates_in_current_directory',methods = ['POST'])
+def check_duplicates_in_current_directory():
+    cur_dir = request.form['cur_dir']
+    cur_user = functions.retrieveUserInfo(session['email'])
+    duplicates = functions.get_duplicates_within_directory(cur_user['root_directory']+cur_dir)
+    return render_template('duplicates.html',msg="Duplicates in "+cur_dir,duplicates = duplicates)
+
 @app.route('/',methods = ['POST', 'GET'])
 def root():
     if request.method == 'POST':

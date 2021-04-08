@@ -34,6 +34,10 @@
             <form action="/check_duplicates_entire_storage" method="POST">
                 <input type="submit" value="check duplicates from entire storage">
             </form>
+            <form action="/check_duplicates_in_current_directory" method="POST">
+                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                <input type="submit" value="check duplicates in current directory">
+            </form>
             <hr>
             <div align=center>
                 Current Directory: {{ cur_dir }}

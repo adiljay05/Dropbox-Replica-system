@@ -143,18 +143,44 @@ def get_directories_from_datastore_(path):
 
 
 def get_duplicates(path):
+    print(path)
     file_list = []
     blob_list = blobList(path)
     duplicate_list = []
     for i in blob_list:
         if i.name[len(i.name) - 1] != '/':  # not a directory but a file
             file_list.append(i)
-            print(i.md5_hash)
+            # print(i.md5_hash)
             print(i.name)
     
     for f in file_list:
         blob_list = blobList(path)
         for b in blob_list:
+            if f.md5_hash == b.md5_hash:
+                duplicate_list.append(b)
+        break
+
+    return duplicate_list
+
+def get_duplicates_within_directory(path):
+    print(path)
+    file_list = []
+    blob_list = blobList(path)
+    path_length = len(path.split('/'))
+    duplicate_list = []
+    for i in blob_list:
+        if i.name[len(i.name) - 1] != '/':  # not a directory but a file
+            if len(i.name.split('/'))>path_length:
+                continue
+            file_list.append(i)
+            # print(i.md5_hash)
+            print(i.name)
+    
+    for f in file_list:
+        blob_list = blobList(path)
+        for b in blob_list:
+            if len(b.name.split('/'))>path_length:
+                continue
             if f.md5_hash == b.md5_hash:
                 duplicate_list.append(b)
         break

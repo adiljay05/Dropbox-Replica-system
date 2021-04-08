@@ -25,26 +25,36 @@
             <table align="center">
                 <th>Sr. No.</th>
                 <th>File Name</th>
+                {% if msg == 'Duplicates in Entire User Storage' %}
                 <th>File Path</th>
-                {% for f in duplicates %}
+                {% endif %}
+                {% if duplicates | length > 1 %}
+                    {% for f in duplicates %}
+                        <tr>
+                            <td>
+                                {{ loop.index }}
+                            </td>
+                            <td>
+                                {% set file = f.name.split('/') %}
+                                {{ file.pop() }}
+                            </td>
+                            {% if msg == 'Duplicates in Entire User Storage' %}
+                            <td align="left">
+                                <input type="hidden" name="{{file.pop(0)}}">                            
+                                /{% for i in file %}
+                                    {{i}}/
+                                {% endfor %}
+                            </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
                     <tr>
-                        <td>
-                            {{ loop.index }}
+                        <td colspan="3">
+                            <h3>No Duplicates found</h3>
                         </td>
-                        <td>
-                            {% set file = f.name.split('/') %}
-                            {{ file.pop() }}
-                        </td>
-                        {% if msg == 'Duplicates in Entire User Storage' %}
-                        <td align="left">
-                            <input type="hidden" name="{{file.pop(0)}}">                            
-                            /{% for i in file %}
-                                {{i}}/
-                            {% endfor %}
-                        </td>
-                        {% endif %}
                     </tr>
-                {% endfor %}
+                {% endif %}
             </table>
 		{% elif error_message %}
 		<p>Error Message: {{ error_message }}</p>
