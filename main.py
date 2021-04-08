@@ -2,7 +2,7 @@ import datetime
 from flask import Flask, render_template,session
 from google.cloud import datastore,storage
 import google.oauth2.id_token
-from flask import Flask, render_template, request,redirect
+from flask import Flask, render_template, request,redirect,Response,send_from_directory
 from google.auth.transport import requests
 from datetime import timedelta
 from datetime import datetime
@@ -129,6 +129,15 @@ def check_duplicates_in_current_directory():
     cur_user = functions.retrieveUserInfo(session['email'])
     duplicates = functions.get_duplicates_within_directory(cur_user['root_directory']+cur_dir)
     return render_template('duplicates.html',msg="Duplicates in "+cur_dir,duplicates = duplicates)
+
+@app.route('/download_file',methods=['POST'])
+def download_file():
+    cur_user = functions.retrieveUserInfo(session['email'])
+    file_name = request.form['file_name']
+    cur_dir = request.form['cur_dir']
+    # return send_from_directory(cur_user['root_directory']+cur_dir+file_name,file_name,as_attachment=True)
+    return Response(functions.downloadBlob(cur_user['root_directory']+cur_dir+file_name), mimetype='application/octet-stream', headers={"Content-Disposition": "filename="+file_name})
+    # return ""
 
 @app.route('/',methods = ['POST', 'GET'])
 def root():

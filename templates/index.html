@@ -86,6 +86,13 @@
                         {{ i['file_name'] }}
                     </td>
                     <td>
+                        <form action="/download_file" method="post">
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
+                            <input type="submit" value="Download" />
+                        </form>
+                    </td>
+                    <td>
                         <form action="/delete_file" method="POST">
                             <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
                             <input type="hidden" name="cur_dir" value="{{ cur_dir }}">

@@ -2,7 +2,7 @@ import datetime
 from flask import Flask, render_template,session
 from google.cloud import datastore,storage
 import google.oauth2.id_token
-from flask import Flask, render_template, request,redirect
+from flask import Flask, render_template, request,redirect,Response,send_file
 from google.auth.transport import requests
 from datetime import timedelta
 from datetime import datetime
@@ -251,3 +251,13 @@ def delete_file_from_datastore(cur_user,path,file_name):
         'file_list':file_list
     })
     datastore_client.put(cur_user)
+
+def downloadBlob(filename):
+    storage_client = storage.Client(project=local_constants.PROJECT_NAME)
+    bucket = storage_client.bucket(local_constants.PROJECT_STORAGE_BUCKET)
+    blob = bucket.blob(filename)
+    splitted_blob = blob.name.split('/')
+    file_name = splitted_blob.pop()
+    # splitted_blob = blob.name.split('/')
+    # file_name = splitted_blob.pop()
+    return blob.download_as_bytes()
