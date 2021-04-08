@@ -211,7 +211,7 @@ def delete_file_from_datastore(cur_user,path,file_name):
         if file_['file_name'] == file_name and file_['file_path'] == path:
             datastore_client.delete(file_key)
             file_list.pop(i)
-            break
+            # break
         i = i + 1
     cur_user.update({
         'file_list':file_list
