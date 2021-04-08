@@ -50,10 +50,11 @@ def go_to_previous_directory():
         cur_dir = cur_dir + splitted_dir[i]+"/"
     print(cur_dir)
     cur_user = functions.retrieveUserInfo(session['email'])
-    data = functions.get_files_and_directories_at_current_path(cur_user['root_directory']+cur_dir)
-    dir_list = data[0]
-    file_list = data[1]
+    # data = functions.get_files_and_directories_at_current_path(cur_user['root_directory']+cur_dir)
+    # dir_list = data[0]
+    # file_list = data[1]
     dir_list = functions.get_directories_from_datastore_(cur_dir)
+    file_list = functions.get_files_from_datastore_(cur_dir)
     return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
         
 
@@ -67,6 +68,7 @@ def change_dir():
     dir_list = data[0]
     file_list = data[1]
     dir_list = functions.get_directories_from_datastore_(cur_dir+directory_name)
+    file_list = functions.get_files_from_datastore_(cur_dir+directory_name)
     # for i in dir_list:
     #     print(i.name)
     return render_template('index.html', error_message="some error occured",cur_dir = cur_dir+directory_name,dir_list = dir_list,file_list =file_list)
@@ -91,6 +93,30 @@ def delete_directory():
     #     b.delete()
     
 
+@app.route('/upload_file', methods=['post'])
+def uploadFileHandler():
+    file = request.files['file_name']
+    if file.filename == '':
+        return "alert('Please select a file First')"
+    cur_dir = request.form['cur_dir']
+    root_dir = functions.retrieveUserInfo(session['email'])['root_directory']
+    path = root_dir+cur_dir
+    functions.addFile(file,path)
+    functions.create_file_in_datastore(file.filename,cur_dir,"no")
+    return redirect('/')
+
+@app.route('/delete_file',methods=['POST'])
+def delete_file():
+    file_name = request.form['file_name']
+    cur_dir = request.form['cur_dir']
+    cur_user = functions.retrieveUserInfo(session['email'])
+    root_dir = cur_user['root_directory']
+    blob = storage.Client().get_bucket(local_constants.PROJECT_STORAGE_BUCKET).blob(root_dir+cur_dir+file_name)
+    functions.delete_file_from_datastore(cur_user,cur_dir,file_name)
+    print(blob.name)
+    blob.delete()
+    return redirect('/')
+
 @app.route('/',methods = ['POST', 'GET'])
 def root():
     if request.method == 'POST':
@@ -111,7 +137,7 @@ def root():
                 session['name'] = claims['name']
                 session['email'] = claims['email']
                 dir_list = functions.get_directories_from_datastore_("/")
-                file_list = functions.get_files_from_datastore()
+                file_list = functions.get_files_from_datastore_("/")
             except ValueError as exc:
                 error_message = str(exc)
         else:

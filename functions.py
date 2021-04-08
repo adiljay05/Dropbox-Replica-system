@@ -73,7 +73,7 @@ def create_file_in_datastore(file_name,path,is_shared):
     })
     datastore_client.put(entity)
     file_list = cur_user['file_list']
-    file_list.append(file_key)
+    file_list.append(file_id)
     cur_user.update({
         'file_list':file_list
     })
@@ -183,3 +183,37 @@ def delete_directory_from_datastore(path,dir_name,cur_dir):
         datastore_client.put(cur_user)
         return True
 
+def addFile(file,path):
+    storage_client = storage.Client(project=local_constants.PROJECT_NAME)
+    bucket = storage_client.bucket(local_constants.PROJECT_STORAGE_BUCKET)
+    blob = bucket.blob(path+file.filename)
+    blob.upload_from_file(file)
+
+def get_files_from_datastore_(path):
+    cur_user = retrieveUserInfo(session['email'])
+    file_list = cur_user['file_list']
+    files_list = []
+    for d in file_list:
+        # print(d)
+        file_key = datastore_client.key('fileInfo', int(d))
+        file_ = datastore_client.get(file_key)
+        if path == file_['file_path']:
+            # print(file_['file_name'])
+            files_list.append(file_)
+    return files_list
+
+def delete_file_from_datastore(cur_user,path,file_name):
+    file_list = cur_user['file_list']
+    i = 0 
+    for d in file_list:
+        file_key = datastore_client.key('fileInfo', int(d))
+        file_ = datastore_client.get(file_key)
+        if file_['file_name'] == file_name and file_['file_path'] == path:
+            datastore_client.delete(file_key)
+            file_list.pop(i)
+            break
+        i = i + 1
+    cur_user.update({
+        'file_list':file_list
+    })
+    datastore_client.put(cur_user)

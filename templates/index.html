@@ -27,6 +27,10 @@
                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
                 <input type="submit" value="Add"/>
             </form>
+            <form action="/upload_file" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                Upload File: <input type="file" name="file_name" /><input type="submit"/>
+            </form>
             <hr>
             <div align=center>
                 Current Directory: {{ cur_dir }}
@@ -45,6 +49,7 @@
                         </td>
                     </tr>
                 {% endif %}
+                {% set vars = {'count': 1} %}
                 {% for i in dir_list %}
                 <tr>
                     <td>{{ loop.index }}</td>
@@ -63,13 +68,25 @@
                         </form>
                     </td>
                 </tr>
+                {% if vars.update({'count': vars.count + 1}) %}{% endif %}
                 {% endfor %}
                 {% for i in file_list %}
                 <tr>
                     <td>
+                        {{ vars.count }}
+                    </td>
+                    <td>
                         {{ i['file_name'] }}
                     </td>
+                    <td>
+                        <form action="/delete_file" method="POST">
+                            <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <input type="submit" class="btn btn-danger" value="Delete">
+                        </form>
+                    </td>
                 </tr>
+                {% if vars.update({'count': vars.count + 1}) %}{% endif %}
                 {% endfor %}
                 
             </table>
