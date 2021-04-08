@@ -64,9 +64,9 @@ def change_dir():
     directory_name = request.form['directory_name']
     cur_user = functions.retrieveUserInfo(session['email'])
     # print("Path passed as parameter: "+cur_user['root_directory']+cur_dir+directory_name)
-    data = functions.get_files_and_directories_at_current_path(cur_user['root_directory']+cur_dir+directory_name)
-    dir_list = data[0]
-    file_list = data[1]
+    # data = functions.get_files_and_directories_at_current_path(cur_user['root_directory']+cur_dir+directory_name)
+    # dir_list = data[0]
+    # file_list = data[1]
     dir_list = functions.get_directories_from_datastore_(cur_dir+directory_name)
     file_list = functions.get_files_from_datastore_(cur_dir+directory_name)
     # for i in dir_list:
@@ -116,6 +116,12 @@ def delete_file():
     print(blob.name)
     blob.delete()
     return redirect('/')
+
+@app.route('/check_duplicates_entire_storage',methods=['POST'])
+def check_duplicates_entire_storage():
+    cur_user = functions.retrieveUserInfo(session['email'])
+    duplicates = functions.get_duplicates(cur_user['root_directory']+"/")
+    return render_template('duplicates.html',msg="Duplicates in Entire User Storage",duplicates = duplicates)
 
 @app.route('/',methods = ['POST', 'GET'])
 def root():

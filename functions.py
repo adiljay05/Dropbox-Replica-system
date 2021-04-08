@@ -136,22 +136,30 @@ def get_directories_from_datastore_(path):
         directory_key = datastore_client.key('DirectoryInfo', int(d))
         dir_ = datastore_client.get(directory_key)
         if path == dir_['directory_path']:
-            print(dir_['directory_name'])
+            # print(dir_['directory_name'])
             dir_list.append(dir_)
     return dir_list
     
 
 
-def get_files_and_directories_at_current_path(path):
-    directory_list = []
+def get_duplicates(path):
     file_list = []
     blob_list = blobList(path)
+    duplicate_list = []
     for i in blob_list:
-        if i.name[len(i.name) - 1] == '/':
-            directory_list.append(i)
-        else:
+        if i.name[len(i.name) - 1] != '/':  # not a directory but a file
             file_list.append(i)
-    return [directory_list,file_list]
+            print(i.md5_hash)
+            print(i.name)
+    
+    for f in file_list:
+        blob_list = blobList(path)
+        for b in blob_list:
+            if f.md5_hash == b.md5_hash:
+                duplicate_list.append(b)
+        break
+
+    return duplicate_list
 
 def delete_directory_or_file_from_cloud_storage(blob):
     for b in blob:

@@ -31,6 +31,9 @@
                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
                 Upload File: <input type="file" name="file_name" /><input type="submit"/>
             </form>
+            <form action="/check_duplicates_entire_storage" method="POST">
+                <input type="submit" value="check duplicates from entire storage">
+            </form>
             <hr>
             <div align=center>
                 Current Directory: {{ cur_dir }}
