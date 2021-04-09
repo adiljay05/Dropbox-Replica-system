@@ -12,29 +12,67 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <link type="text/css" rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
     <script src="/static/scripts.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-    <h1>Welcome to Dropbox Replica System</h1>
-    <div id="firebase-auth-container"></div>
-    <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
-    <div id="login-info" hidden="true">
-		<hr>
-		{% if session['name'] %}
-            <h2>Share File: {{ file_name }} with user</h2>
-            <form action="/share_file_now" method="POST">
-                <input type="hidden" name="file_name" value="{{ file_name }}">
-                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                <select name="user_selected">
-                    {% for u in users %}
-                        <option value="{{ u['email'] }}">{{ u['name'] }} - {{ u['email'] }}</option>
-                    {% endfor %}
-                </select>
-                <input type="submit" class="btn btn-info" value="Share">
-            </form>
-		{% elif error_message %}
-		<p>Error Message: {{ error_message }}</p>
-		{% endif %}
+    <div align="center" >
+        <div style="width: 60%;">
+            <h1>Welcome to Dropbox Replica System</h1>
+            <div id="firebase-auth-container"></div>
+            <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
+            <div id="login-info" hidden="true">
+                <hr>
+                {% if session['name'] %}
+                    <table class="table">
+                        <tr class="table-info">
+                            <td>Name: {{ session['name'] }}</td>
+                            <td>Email: {{ session['email'] }}</td>
+                        </tr>
+                    </table>
+                    <table class="table" align="center">
+                    <tr>
+                        <form action="/add_directory" method="post">
+                            <td><input type="text" class="form-control" required placeholder="Enter directory Name" name="dir_name"/></td>
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <td><button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Add</button></td>
+                        </form>
+                        <form action="/upload_file" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <td><input type="file" class="form-control" name="file_name" /></td>
+                            <td><button class="btn btn-success" type="submit"><i class="fa fa-upload"></i> Upload</button></td>
+                        </form>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <form action="/check_duplicates_entire_storage" method="POST">
+                                <input type="submit" class="btn btn-light form-control" value="check duplicates from entire storage">
+                            </form>
+                        </td>
+                        <td colspan="2">
+                            <form action="/" method="GET">
+                                <button type="submit" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </table>
+                    <hr>
+                    <h2>Share File: {{ file_name }} with user</h2>
+                    <form action="/share_file_now" method="POST">
+                        <input type="hidden" name="file_name" value="{{ file_name }}">
+                        <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                        <select name="user_selected">
+                            {% for u in users %}
+                                <option value="{{ u['email'] }}">{{ u['name'] }} - {{ u['email'] }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit" class="btn btn-info" value="Share">
+                    </form>
+                {% elif error_message %}
+                <p>Error Message: {{ error_message }}</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </body>
 

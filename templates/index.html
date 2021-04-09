@@ -12,6 +12,7 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <link type="text/css" rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
     <script src="/static/scripts.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -19,41 +20,64 @@
         <div style="width: 60%;">
         <h1>Welcome to Dropbox Replica System</h1>
         <div id="firebase-auth-container"></div>
-        <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
+        <button id="sign-out" class="btn btn-danger" hidden="true">Sign out <i class="fa fa-power-off"></i> </button>
         <div id="login-info" hidden="true">
             <hr>
             {% if session['name'] %}
-                <p>{{ session['name'] }}</p>
-                <form action="/add_directory" method="post">
-                    Directory Name: <input type="text" required placeholder="Enter directory Name" name="dir_name"/>
-                    <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                    <input type="submit" value="Add"/>
-                </form>
-                <form action="/upload_file" method="post" enctype="multipart/form-data">
-                    <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                    Upload File: <input type="file" name="file_name" /><input type="submit"/>
-                </form>
-                <form action="/check_duplicates_entire_storage" method="POST">
-                    <input type="submit" value="check duplicates from entire storage">
-                </form>
-                <form action="/check_duplicates_in_current_directory" method="POST">
-                    <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                    <input type="submit" value="check duplicates in current directory">
-                </form>
+                <table class="table">
+                    <tr class="table-info">
+                        <td>Name: {{ session['name'] }}</td>
+                        <td>Email: {{ session['email'] }}</td>
+                    </tr>
+                </table>
+                <table class="table" align="center">
+                <tr>
+                    <form action="/add_directory" method="post">
+                        <td><input type="text" class="form-control" required placeholder="Enter directory Name" name="dir_name"/></td>
+                        <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                        <td><button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Add</button></td>
+                    </form>
+                    <form action="/upload_file" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                        <td><input type="file" class="form-control" name="file_name" /></td>
+                        <td><button class="btn btn-success" type="submit"><i class="fa fa-upload"></i> Upload</button></td>
+                    </form>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <form action="/check_duplicates_entire_storage" method="POST">
+                            <input type="submit" class="btn btn-light form-control" value="check duplicates from entire storage">
+                        </form>
+                    </td>
+                    <td colspan="1">
+                        <form action="/check_duplicates_in_current_directory" method="POST">
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <input type="submit" class="btn btn-light form-control" value="check duplicates in current directory">
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/" method="GET">
+                            <button type="submit" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
+                        </form>
+                    </td>
+                </tr>
+                </table>
                 <hr>
-                <div align=center>
-                    Current Directory: {{ cur_dir }}
+                <div align=left class="table">
+                    <h3>Current Directory: {{ cur_dir }}</h3>
                 </div>
-                <table align="center">
+                <table class="table table-success table-bordered">
                     <th>Sr. No.</th>
                     <th>Name</th>
-                    <th>Actions</th>
+                    <th>File Type</th>
+                    <th colspan="3" style="text-align: center;">Actions</th>
                     {% if cur_dir!="/" %}
                         <tr>
+                            <td></td>
                             <td colspan="3">
                                 <form action="/go_to_previous_directory" id="back_form" method="POST">
                                     <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                                    <a href="#" onclick="document.getElementById('back_form').submit()">..</a>
+                                    <a href="#" onclick="document.getElementById('back_form').submit()">../</a>
                                 </form>
                             </td>
                         </tr>
@@ -69,11 +93,13 @@
                                 <a href="#" onclick="document.getElementById('form{{ loop.index }}').submit()"> {{ i['directory_name'] }} </a>
                             </form>
                         </td>
-                        <td>
+                        <td>Directory</td>
+                        <td></td>
+                        <td colspan="2">
                             <form action="/delete_directory" method="POST">
                                 <input type="hidden" name="dir_name" value="{{ i['directory_name'] }}">
                                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                                <input type="submit" class="btn btn-danger" value="Delete">
+                                <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete </button>
                             </form>
                         </td>
                     </tr>
@@ -87,32 +113,33 @@
                         <td>
                             {{ i['file_name'] }}
                         </td>
+                        <td>File</td>
                         <td>
                             <form action="/download_file" method="post">
                                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
                                 <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
-                                <input type="submit" value="Download" />
+                                <button type="submit" class="btn"><i class="fa fa-download"> Download</i></button>
                             </form>
                         </td>
                         <td>
                             <form action="/delete_file" method="POST">
                                 <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
                                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                                <input type="submit" class="btn btn-danger" value="Delete">
+                                <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete </button>
                             </form>
                         </td>
                         <td>
                             <form action="/share_file" method="POST">
                                 <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
                                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                                <input type="submit" class="btn btn-info" value="Share">
+                                <button type="submit" class="btn btn-info" ><i class="fa fa-share"></i> Share</button>
                             </form>
                         </td>
                     </tr>
                     {% if vars.update({'count': vars.count + 1}) %}{% endif %}
                     {% endfor %}
                     {% for s in shared_files %}
-                    <tr>
+                    <tr class="bg-success">
                         <td>
                             {{ vars.count }}
                             {% if vars.update({'count': vars.count + 1}) %}{% endif %}
@@ -120,10 +147,13 @@
                             {% set splitted_file_path = file_path.split('/') %}
                         </td>
                         <td>
+                            {{ splitted_file_path.pop() }}
+                        </td>
+                        <td>Shared File</td>
+                        <td colspan="3">
                             <form action="/download_shared_file" method="post">
-                                {{ splitted_file_path.pop() }}
                                 <input type="hidden" name="path_with_name" value="{{ s }}">
-                                <input type="submit" value="Download" />
+                                <button type="submit" class="btn"><i class="fa fa-download"> Download</i></button>
                             </form>
                         </td>
                     </tr>

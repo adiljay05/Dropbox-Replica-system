@@ -12,53 +12,92 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <link type="text/css" rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
     <script src="/static/scripts.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-    <h1>Welcome to Dropbox Replica System</h1>
-    <div id="firebase-auth-container"></div>
-    <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
-    <div id="login-info" hidden="true">
-		<hr>
-		{% if session['name'] %}
-            <h2>{{ msg }}</h2>
-            <table align="center">
-                <th>Sr. No.</th>
-                <th>File Name</th>
-                {% if msg == 'Duplicates in Entire User Storage' %}
-                <th>File Path</th>
-                {% endif %}
-                {% if duplicates | length > 1 %}
-                    {% for f in duplicates %}
-                        <tr>
-                            <td>
-                                {{ loop.index }}
-                            </td>
-                            <td>
-                                {% set file = f.name.split('/') %}
-                                {{ file.pop() }}
-                            </td>
-                            {% if msg == 'Duplicates in Entire User Storage' %}
-                            <td align="left">
-                                <input type="hidden" name="{{file.pop(0)}}">                            
-                                /{% for i in file %}
-                                    {{i}}/
-                                {% endfor %}
-                            </td>
-                            {% endif %}
+    <div align="center" >
+        <div style="width: 60%;">
+            <h1>Welcome to Dropbox Replica System</h1>
+            <div id="firebase-auth-container"></div>
+            <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
+            <div id="login-info" hidden="true">
+                <hr>
+                {% if session['name'] %}
+                    <table class="table">
+                        <tr class="table-info">
+                            <td>Name: {{ session['name'] }}</td>
+                            <td>Email: {{ session['email'] }}</td>
                         </tr>
-                    {% endfor %}
-                {% else %}
+                    </table>
+                    <table class="table" align="center">
                     <tr>
-                        <td colspan="3">
-                            <h3>No Duplicates found</h3>
+                        <form action="/add_directory" method="post">
+                            <td><input type="text" class="form-control" required placeholder="Enter directory Name" name="dir_name"/></td>
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <td><button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Add</button></td>
+                        </form>
+                        <form action="/upload_file" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                            <td><input type="file" class="form-control" name="file_name" /></td>
+                            <td><button class="btn btn-success" type="submit"><i class="fa fa-upload"></i> Upload</button></td>
+                        </form>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <form action="/check_duplicates_entire_storage" method="POST">
+                                <input type="submit" class="btn btn-light form-control" value="check duplicates from entire storage">
+                            </form>
+                        </td>
+                        <td colspan="2">
+                            <form action="/" method="GET">
+                                <button type="submit" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
+                            </form>
                         </td>
                     </tr>
+                    </table>
+                    <hr>
+                    <h2>{{ msg }}</h2>
+                    <table class="table table-success">
+                        <th>Sr. No.</th>
+                        <th>File Name</th>
+                        {% if msg == 'Duplicates in Entire User Storage' %}
+                        <th>File Path</th>
+                        {% endif %}
+                        {% if duplicates | length > 1 %}
+                            {% for f in duplicates %}
+                                <tr>
+                                    <td>
+                                        {{ loop.index }}
+                                    </td>
+                                    <td>
+                                        {% set file = f.name.split('/') %}
+                                        {{ file.pop() }}
+                                    </td>
+                                    {% if msg == 'Duplicates in Entire User Storage' %}
+                                    <td align="left">
+                                        <input type="hidden" name="{{file.pop(0)}}">                            
+                                        /{% for i in file %}
+                                            {{i}}/
+                                        {% endfor %}
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3">
+                                    <h3>No Duplicates found</h3>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                {% elif error_message %}
+                <p>Error Message: {{ error_message }}</p>
                 {% endif %}
-            </table>
-		{% elif error_message %}
-		<p>Error Message: {{ error_message }}</p>
-		{% endif %}
+            </div>
+            <font color=red>* Duplicates are calculated based upon md5 hash</font>
+        </div>
     </div>
 </body>
 
