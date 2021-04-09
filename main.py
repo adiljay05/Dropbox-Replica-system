@@ -137,7 +137,30 @@ def download_file():
     cur_dir = request.form['cur_dir']
     # return send_from_directory(cur_user['root_directory']+cur_dir+file_name,file_name,as_attachment=True)
     return Response(functions.downloadBlob(cur_user['root_directory']+cur_dir+file_name), mimetype='application/octet-stream', headers={"Content-Disposition": "filename="+file_name})
-    # return ""
+
+@app.route('/download_shared_file',methods=['POST'])
+def download_shared_file():
+    path_with_name = request.form['path_with_name']
+    splitted_path = path_with_name.split('/')
+    file_name = splitted_path.pop()
+    return Response(functions.downloadBlob(path_with_name), mimetype='application/octet-stream', headers={"Content-Disposition": "filename="+file_name})
+
+@app.route('/share_file',methods=['POST'])
+def share_file():
+    file_name = request.form['file_name']
+    cur_dir = request.form['cur_dir']
+    users = functions.get_all_users()
+    cur_user = functions.retrieveUserInfo(session['email'])
+    return render_template('share_file.html',cur_dir = cur_user['root_directory']+cur_dir, file_name = file_name,users = users)
+
+@app.route('/share_file_now',methods=['POST'])
+def share_file_now():
+    file_name = request.form['file_name']
+    cur_dir = request.form['cur_dir']
+    user_selected = request.form['user_selected']
+    functions.store_shared_file_path(cur_dir+file_name,user_selected)
+    return "shared"
+    
 
 @app.route('/',methods = ['POST', 'GET'])
 def root():
@@ -148,6 +171,7 @@ def root():
         error_message = None
         dir_list = []
         file_list = []
+        shared_files = []
         if id_token:
             try:
                 claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
@@ -160,12 +184,13 @@ def root():
                 session['email'] = claims['email']
                 dir_list = functions.get_directories_from_datastore_("/")
                 file_list = functions.get_files_from_datastore_("/")
+                shared_files = functions.get_shared_files()
             except ValueError as exc:
                 error_message = str(exc)
         else:
             session['name'] = None
             session['email'] = None
-        return render_template('index.html', error_message=error_message,cur_dir = "/",dir_list = dir_list,file_list =file_list)
+        return render_template('index.html', error_message=error_message,cur_dir = "/",dir_list = dir_list,file_list =file_list,shared_files = shared_files)
 
 
 if __name__ == '__main__':

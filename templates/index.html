@@ -15,98 +15,126 @@
 </head>
 
 <body>
-    <h1>Welcome to Dropbox Replica System</h1>
-    <div id="firebase-auth-container"></div>
-    <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
-    <div id="login-info" hidden="true">
-		<hr>
-		{% if session['name'] %}
-            <p>{{ session['name'] }}</p>
-            <form action="/add_directory" method="post">
-                Directory Name: <input type="text" required placeholder="Enter directory Name" name="dir_name"/>
-                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                <input type="submit" value="Add"/>
-            </form>
-            <form action="/upload_file" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                Upload File: <input type="file" name="file_name" /><input type="submit"/>
-            </form>
-            <form action="/check_duplicates_entire_storage" method="POST">
-                <input type="submit" value="check duplicates from entire storage">
-            </form>
-            <form action="/check_duplicates_in_current_directory" method="POST">
-                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                <input type="submit" value="check duplicates in current directory">
-            </form>
+    <div align="center" >
+        <div style="width: 60%;">
+        <h1>Welcome to Dropbox Replica System</h1>
+        <div id="firebase-auth-container"></div>
+        <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
+        <div id="login-info" hidden="true">
             <hr>
-            <div align=center>
-                Current Directory: {{ cur_dir }}
-            </div>
-            <table align="center">
-                <th>Sr. No.</th>
-                <th>Name</th>
-                <th>Actions</th>
-                {% if cur_dir!="/" %}
+            {% if session['name'] %}
+                <p>{{ session['name'] }}</p>
+                <form action="/add_directory" method="post">
+                    Directory Name: <input type="text" required placeholder="Enter directory Name" name="dir_name"/>
+                    <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                    <input type="submit" value="Add"/>
+                </form>
+                <form action="/upload_file" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                    Upload File: <input type="file" name="file_name" /><input type="submit"/>
+                </form>
+                <form action="/check_duplicates_entire_storage" method="POST">
+                    <input type="submit" value="check duplicates from entire storage">
+                </form>
+                <form action="/check_duplicates_in_current_directory" method="POST">
+                    <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                    <input type="submit" value="check duplicates in current directory">
+                </form>
+                <hr>
+                <div align=center>
+                    Current Directory: {{ cur_dir }}
+                </div>
+                <table align="center">
+                    <th>Sr. No.</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                    {% if cur_dir!="/" %}
+                        <tr>
+                            <td colspan="3">
+                                <form action="/go_to_previous_directory" id="back_form" method="POST">
+                                    <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                                    <a href="#" onclick="document.getElementById('back_form').submit()">..</a>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    {% set vars = {'count': 1} %}
+                    {% for i in dir_list %}
                     <tr>
-                        <td colspan="3">
-                            <form action="/go_to_previous_directory" id="back_form" method="POST">
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <form action="/change_dir" id="form{{ loop.index }}" method="POST">
                                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                                <a href="#" onclick="document.getElementById('back_form').submit()">..</a>
+                                <input type="hidden" name="directory_name" value="{{ i['directory_name'] }}">
+                                <a href="#" onclick="document.getElementById('form{{ loop.index }}').submit()"> {{ i['directory_name'] }} </a>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="/delete_directory" method="POST">
+                                <input type="hidden" name="dir_name" value="{{ i['directory_name'] }}">
+                                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                                <input type="submit" class="btn btn-danger" value="Delete">
                             </form>
                         </td>
                     </tr>
-                {% endif %}
-                {% set vars = {'count': 1} %}
-                {% for i in dir_list %}
-                <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>
-                        <form action="/change_dir" id="form{{ loop.index }}" method="POST">
-                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                            <input type="hidden" name="directory_name" value="{{ i['directory_name'] }}">
-                            <a href="#" onclick="document.getElementById('form{{ loop.index }}').submit()"> {{ i['directory_name'] }} </a>
-                        </form>
-                    </td>
-                    <td>
-                        <form action="/delete_directory" method="POST">
-                            <input type="hidden" name="dir_name" value="{{ i['directory_name'] }}">
-                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                            <input type="submit" class="btn btn-danger" value="Delete">
-                        </form>
-                    </td>
-                </tr>
-                {% if vars.update({'count': vars.count + 1}) %}{% endif %}
-                {% endfor %}
-                {% for i in file_list %}
-                <tr>
-                    <td>
-                        {{ vars.count }}
-                    </td>
-                    <td>
-                        {{ i['file_name'] }}
-                    </td>
-                    <td>
-                        <form action="/download_file" method="post">
-                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                            <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
-                            <input type="submit" value="Download" />
-                        </form>
-                    </td>
-                    <td>
-                        <form action="/delete_file" method="POST">
-                            <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
-                            <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                            <input type="submit" class="btn btn-danger" value="Delete">
-                        </form>
-                    </td>
-                </tr>
-                {% if vars.update({'count': vars.count + 1}) %}{% endif %}
-                {% endfor %}
-                
-            </table>
-		{% elif error_message %}
-		<p>Error Message: {{ error_message }}</p>
-		{% endif %}
+                    {% if vars.update({'count': vars.count + 1}) %}{% endif %}
+                    {% endfor %}
+                    {% for i in file_list %}
+                    <tr>
+                        <td>
+                            {{ vars.count }}
+                        </td>
+                        <td>
+                            {{ i['file_name'] }}
+                        </td>
+                        <td>
+                            <form action="/download_file" method="post">
+                                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                                <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
+                                <input type="submit" value="Download" />
+                            </form>
+                        </td>
+                        <td>
+                            <form action="/delete_file" method="POST">
+                                <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
+                                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                                <input type="submit" class="btn btn-danger" value="Delete">
+                            </form>
+                        </td>
+                        <td>
+                            <form action="/share_file" method="POST">
+                                <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
+                                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                                <input type="submit" class="btn btn-info" value="Share">
+                            </form>
+                        </td>
+                    </tr>
+                    {% if vars.update({'count': vars.count + 1}) %}{% endif %}
+                    {% endfor %}
+                    {% for s in shared_files %}
+                    <tr>
+                        <td>
+                            {{ vars.count }}
+                            {% if vars.update({'count': vars.count + 1}) %}{% endif %}
+                            {% set file_path = s %}
+                            {% set splitted_file_path = file_path.split('/') %}
+                        </td>
+                        <td>
+                            <form action="/download_shared_file" method="post">
+                                {{ splitted_file_path.pop() }}
+                                <input type="hidden" name="path_with_name" value="{{ s }}">
+                                <input type="submit" value="Download" />
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                </table>
+            {% elif error_message %}
+            <p>Error Message: {{ error_message }}</p>
+            {% endif %}
+        </div>
+        </div>
     </div>
 </body>
 

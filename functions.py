@@ -31,7 +31,8 @@ def createUserInfo(claims):
         'name': claims['name'],
         'root_directory': str(root_directory_id),
         'directory_list': [],
-        'file_list':[]
+        'file_list':[],
+        'shared_files':[]
     })
     datastore_client.put(entity)
     return root_directory_id
@@ -256,8 +257,30 @@ def downloadBlob(filename):
     storage_client = storage.Client(project=local_constants.PROJECT_NAME)
     bucket = storage_client.bucket(local_constants.PROJECT_STORAGE_BUCKET)
     blob = bucket.blob(filename)
-    splitted_blob = blob.name.split('/')
-    file_name = splitted_blob.pop()
-    # splitted_blob = blob.name.split('/')
-    # file_name = splitted_blob.pop()
     return blob.download_as_bytes()
+
+def get_all_users():
+    query = datastore_client.query(kind='UserInfoForAssignment3')
+    results = query.fetch()
+    result_without_self = []
+    for r in results:
+        if r['email'] == session['email']:
+            continue
+        result_without_self.append(r)
+    return result_without_self
+
+def store_shared_file_path(path,user_selected):
+    selected_user = retrieveUserInfo(user_selected)
+    print(user_selected)
+    shared_list = selected_user['shared_files']
+    shared_list.append(path)
+    selected_user.update({
+        'shared_files':shared_list
+    })
+    datastore_client.put(selected_user)
+
+def get_shared_files():
+    cur_user = retrieveUserInfo(session['email'])
+    return cur_user['shared_files']
+
+
