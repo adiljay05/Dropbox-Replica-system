@@ -49,6 +49,8 @@ def go_to_previous_directory():
     for i in range(len(splitted_dir)-2):
         cur_dir = cur_dir + splitted_dir[i]+"/"
     print(cur_dir)
+    if cur_dir == "/":
+        return redirect('/')
     cur_user = functions.retrieveUserInfo(session['email'])
     # data = functions.get_files_and_directories_at_current_path(cur_user['root_directory']+cur_dir)
     # dir_list = data[0]
