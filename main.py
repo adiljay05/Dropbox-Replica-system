@@ -33,11 +33,13 @@ def addDirectoryHandler():
         return redirect('/')        #send alert to user
     if directory_name[len(directory_name) - 1] != '/':
         directory_name = directory_name + "/"
-    
     if functions.check_existance_of_directory(path,directory_name,cur_user) == False:
         functions.create_directory_in_cloud_storage(root_dir,path,directory_name)
         functions.create_directory_in_datastore(directory_name,path)
-        return redirect('/')
+        dir_list = functions.get_directories_from_datastore_(path)
+        file_list = functions.get_files_from_datastore_(path)
+        return render_template('index.html', error_message="some error occured",cur_dir = path,dir_list = dir_list,file_list =file_list)
+        # return redirect('/')
     else:
         return "Directory already exists"
 
@@ -86,7 +88,10 @@ def delete_directory():
 
     if functions.delete_directory_from_datastore(cur_dir,dir_name,str(root_dir)+cur_dir):
         functions.delete_directory_or_file_from_cloud_storage(blob)
-        return redirect('/')
+        dir_list = functions.get_directories_from_datastore_(cur_dir)
+        file_list = functions.get_files_from_datastore_(cur_dir)
+        return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
+        # return redirect('/')
     else:
         return "Directory Contains some file/folders, Please delete them first."
     # blob_ = functions.blobList("jawad/")
@@ -115,9 +120,12 @@ def delete_file():
     root_dir = cur_user['root_directory']
     blob = storage.Client().get_bucket(local_constants.PROJECT_STORAGE_BUCKET).blob(root_dir+cur_dir+file_name)
     functions.delete_file_from_datastore(cur_user,cur_dir,file_name)
-    print(blob.name)
+    # print(blob.name)
     blob.delete()
-    return redirect('/')
+    dir_list = functions.get_directories_from_datastore_(cur_dir)
+    file_list = functions.get_files_from_datastore_(cur_dir)
+    return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
+    # return redirect('/')
 
 @app.route('/check_duplicates_entire_storage',methods=['POST'])
 def check_duplicates_entire_storage():
