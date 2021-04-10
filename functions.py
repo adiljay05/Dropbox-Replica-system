@@ -104,6 +104,15 @@ def check_existance_of_directory(path,dir_name,cur_user):
             return True
     return False
 
+def check_existance_of_file(path,file_name,cur_user):
+    file_list = cur_user['file_list']
+    for d in file_list:
+        file_key = datastore_client.key('fileInfo', d)
+        file_data = datastore_client.get(file_key)
+        if file_data['file_path'] == path and file_data['file_name'] == file_name:
+            return True
+    return False
+
 def get_root_directory(email):
     entity_key = datastore_client.key('UserInfoForAssignment3', email)
     cur_user = datastore_client.get(entity_key)
