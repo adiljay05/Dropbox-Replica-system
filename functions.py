@@ -172,22 +172,25 @@ def get_duplicates_within_directory(path):
     blob_list = blobList(path)
     path_length = len(path.split('/'))
     duplicate_list = []
+    second_list = []
     for i in blob_list:
         if i.name[len(i.name) - 1] != '/':  # not a directory but a file
             if len(i.name.split('/'))>path_length:
                 continue
             file_list.append(i)
+            second_list.append(i)
             # print(i.md5_hash)
             print(i.name)
     
     for f in file_list:
-        blob_list = blobList(path)
-        for b in blob_list:
+        i = 0
+        for b in second_list:
             if len(b.name.split('/'))>path_length:
                 continue
-            if f.md5_hash == b.md5_hash:
+            if f.md5_hash == b.md5_hash and f.name != b.name:
                 duplicate_list.append(b)
-        break
+                second_list.pop(i)
+        # break
 
     return duplicate_list
 

@@ -37,7 +37,13 @@
                                 <input type="submit" class="btn btn-light form-control" value="check duplicates from entire storage">
                             </form>
                         </td>
-                        <td colspan="2">
+                        <td>
+                            <form action="/go_back" method="POST">
+                                <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
+                                <button type="submit" class="btn btn-light form-control"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Go Back</button>
+                            </form>
+                        </td>
+                        <td colspan="">
                             <form action="/" method="GET">
                                 <button type="submit" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
                             </form>
