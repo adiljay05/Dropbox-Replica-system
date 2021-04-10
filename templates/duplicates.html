@@ -58,9 +58,20 @@
                         {% if msg == 'Duplicates in Entire User Storage' %}
                         <th>File Path</th>
                         {% endif %}
+                        <th>MD5 Hash</th>
                         {% if duplicates | length > 1 %}
+                            {% set vars = {'hash': ""} %}
+                            {% set vars = {'check': 0} %}
                             {% for f in duplicates %}
-                                <tr>
+                                {% if vars.hash != f.md5_hash %}
+                                    {% if vars.update({'hash': f.md5_hash}) %}{% endif %}
+                                    {% if vars.check == 0 %}
+                                        {% if vars.update({'check': 1}) %} {% endif %}
+                                    {% else %}
+                                        {% if vars.update({'check': 0}) %} {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                                <tr {% if vars.check == 1 %} class="bg-light" {% else %} class="table-info" {% endif %}>
                                     <td>
                                         {{ loop.index }}
                                     </td>
@@ -76,6 +87,9 @@
                                         {% endfor %}
                                     </td>
                                     {% endif %}
+                                    <td>
+                                        {{ f.md5_hash }}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         {% else %}

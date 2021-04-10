@@ -10,7 +10,7 @@ import local_constants , functions
 import random
 import os
 
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "jawad1.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "jawad1.json"
 
 app = Flask(__name__)
 app.secret_key = 'assignment3'
@@ -33,7 +33,7 @@ def addDirectoryHandler():
         directory_name = request.form['dir_name']
         root_dir = cur_user['root_directory']
         if directory_name == '':
-            return redirect('/')        #send alert to user
+            return redirect('/')
         if directory_name[len(directory_name) - 1] != '/':
             directory_name = directory_name + "/"
         if functions.check_existance_of_directory(path,directory_name,cur_user) == False:
@@ -44,7 +44,6 @@ def addDirectoryHandler():
             dir_list = functions.get_directories_from_datastore_(path)
             file_list = functions.get_files_from_datastore_(path)
             return render_template('index.html', error_message="some error occured",cur_dir = path,dir_list = dir_list,file_list =file_list)
-            # return redirect('/')
         else:
             return render_template('show_message.html',msg = "Directory already exists",cur_dir = path)
 
@@ -75,9 +74,6 @@ def go_to_previous_directory():
         if cur_dir == "/":
             return redirect('/')
         cur_user = functions.retrieveUserInfo(session['email'])
-        # data = functions.get_files_and_directories_at_current_path(cur_user['root_directory']+cur_dir)
-        # dir_list = data[0]
-        # file_list = data[1]
         dir_list = functions.get_directories_from_datastore_(cur_dir)
         file_list = functions.get_files_from_datastore_(cur_dir)
         return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
@@ -91,14 +87,8 @@ def change_dir():
         cur_dir = request.form['cur_dir']
         directory_name = request.form['directory_name']
         cur_user = functions.retrieveUserInfo(session['email'])
-        # print("Path passed as parameter: "+cur_user['root_directory']+cur_dir+directory_name)
-        # data = functions.get_files_and_directories_at_current_path(cur_user['root_directory']+cur_dir+directory_name)
-        # dir_list = data[0]
-        # file_list = data[1]
         dir_list = functions.get_directories_from_datastore_(cur_dir+directory_name)
         file_list = functions.get_files_from_datastore_(cur_dir+directory_name)
-        # for i in dir_list:
-        #     print(i.name)
         return render_template('index.html', error_message="some error occured",cur_dir = cur_dir+directory_name,dir_list = dir_list,file_list =file_list)
 
 
@@ -118,13 +108,8 @@ def delete_directory():
             dir_list = functions.get_directories_from_datastore_(cur_dir)
             file_list = functions.get_files_from_datastore_(cur_dir)
             return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
-            # return redirect('/')
         else:
             return render_template('show_message.html',msg = "Directory Contains some file/folders, Please delete them first.",cur_dir = cur_dir)
-        # blob_ = functions.blobList("jawad/")
-        # for b in blob_:
-        #     print(b.name)
-        #     b.delete()
     
 
 @app.route('/upload_file', methods=['post','GET'])
@@ -163,14 +148,12 @@ def delete_file():
         root_dir = cur_user['root_directory']
         blob = storage.Client().get_bucket(local_constants.PROJECT_STORAGE_BUCKET).blob(root_dir+cur_dir+file_name)
         functions.delete_file_from_datastore(cur_user,cur_dir,file_name)
-        # print(blob.name)
         blob.delete()
         if cur_dir == "/":
                 return redirect('/')
         dir_list = functions.get_directories_from_datastore_(cur_dir)
         file_list = functions.get_files_from_datastore_(cur_dir)
         return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
-        # return redirect('/')
 
 @app.route('/check_duplicates_entire_storage',methods=['POST','GET'])
 def check_duplicates_entire_storage():
@@ -179,6 +162,7 @@ def check_duplicates_entire_storage():
     else:
         cur_user = functions.retrieveUserInfo(session['email'])
         duplicates = functions.get_duplicates(cur_user['root_directory']+"/")
+        duplicates.sort(key=lambda x: x.md5_hash)
         return render_template('duplicates.html',msg="Duplicates in Entire User Storage",cur_dir = "/",duplicates = duplicates)
 
 @app.route('/check_duplicates_in_current_directory',methods = ['POST','GET'])
@@ -189,6 +173,7 @@ def check_duplicates_in_current_directory():
         cur_dir = request.form['cur_dir']
         cur_user = functions.retrieveUserInfo(session['email'])
         duplicates = functions.get_duplicates_within_directory(cur_user['root_directory']+cur_dir)
+        duplicates.sort(key=lambda x: x.md5_hash)
         return render_template('duplicates.html',msg="Duplicates in "+cur_dir,cur_dir=cur_dir,duplicates = duplicates)
 
 @app.route('/download_file',methods=['POST','GET'])
@@ -199,7 +184,6 @@ def download_file():
         cur_user = functions.retrieveUserInfo(session['email'])
         file_name = request.form['file_name']
         cur_dir = request.form['cur_dir']
-        # return send_from_directory(cur_user['root_directory']+cur_dir+file_name,file_name,as_attachment=True)
         return Response(functions.downloadBlob(cur_user['root_directory']+cur_dir+file_name), mimetype='application/octet-stream', headers={"Content-Disposition": "filename="+file_name})
 
 @app.route('/download_shared_file',methods=['POST','GET'])

@@ -123,7 +123,6 @@ def get_directories_from_datastore():
     directory_list = cur_user['directory_list']
     dir_list = []
     for d in directory_list:
-        # print(d)
         directory_key = datastore_client.key('DirectoryInfo', int(d))
         dir_list.append(datastore_client.get(directory_key))
     return dir_list
@@ -142,11 +141,9 @@ def get_directories_from_datastore_(path):
     directory_list = cur_user['directory_list']
     dir_list = []
     for d in directory_list:
-        # print(d)
         directory_key = datastore_client.key('DirectoryInfo', int(d))
         dir_ = datastore_client.get(directory_key)
         if path == dir_['directory_path']:
-            # print(dir_['directory_name'])
             dir_list.append(dir_)
     return dir_list
     
@@ -162,7 +159,6 @@ def get_duplicates(path):
         if i.name[len(i.name) - 1] != '/':  # not a directory but a file
             file_list.append(i)
             second_list.append(i)
-            # print(i.md5_hash)
             print(i.name)
     
     for f in file_list:
@@ -188,7 +184,6 @@ def get_duplicates_within_directory(path):
                 continue
             file_list.append(i)
             second_list.append(i)
-            # print(i.md5_hash)
             print(i.name)
     
     for f in file_list:
@@ -199,7 +194,6 @@ def get_duplicates_within_directory(path):
             if f.md5_hash == b.md5_hash and f.name != b.name:
                 duplicate_list.append(b)
                 second_list.pop(i)
-        # break
 
     return duplicate_list
 
@@ -244,11 +238,9 @@ def get_files_from_datastore_(path):
     file_list = cur_user['file_list']
     files_list = []
     for d in file_list:
-        # print(d)
         file_key = datastore_client.key('fileInfo', int(d))
         file_ = datastore_client.get(file_key)
         if path == file_['file_path']:
-            # print(file_['file_name'])
             files_list.append(file_)
     return files_list
 
@@ -261,7 +253,6 @@ def delete_file_from_datastore(cur_user,path,file_name):
         if file_['file_name'] == file_name and file_['file_path'] == path:
             datastore_client.delete(file_key)
             file_list.pop(i)
-            # break
         i = i + 1
     cur_user.update({
         'file_list':file_list
