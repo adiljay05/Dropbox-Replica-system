@@ -2,7 +2,7 @@ import datetime
 from flask import Flask, render_template,session
 from google.cloud import datastore,storage
 import google.oauth2.id_token
-from flask import Flask, render_template, request,redirect,Response,send_from_directory
+from flask import Flask, render_template, request,redirect,Response
 from google.auth.transport import requests
 from datetime import timedelta
 from datetime import datetime
@@ -10,7 +10,7 @@ import local_constants , functions
 import random
 import os
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "jawad1.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "jawad1.json"
 
 app = Flask(__name__)
 app.secret_key = 'assignment3'
