@@ -31,16 +31,17 @@ def addDirectoryHandler():
         cur_user = functions.retrieveUserInfo(email)
         path = request.form['cur_dir']
         directory_name = request.form['dir_name']
-        root_dir = cur_user['root_directory']
+        root_dir = session['root_directory']
         if directory_name == '':
             return redirect('/')
         if directory_name[len(directory_name) - 1] != '/':
             directory_name = directory_name + "/"
-        if functions.check_existance_of_directory(path,directory_name,cur_user) == False:
+        if functions.check_existance_of_directory(path,directory_name) == False:
             functions.create_directory_in_cloud_storage(root_dir,path,directory_name)
             functions.create_directory_in_datastore(directory_name,path)
             if path == "/":
                 return redirect('/')
+            # cur_user = functions.retrieveUserInfo(email)
             dir_list = functions.get_directories_from_datastore_(path)
             file_list = functions.get_files_from_datastore_(path)
             return render_template('index.html', error_message="some error occured",cur_dir = path,dir_list = dir_list,file_list =file_list)
@@ -55,6 +56,7 @@ def go_back():
         path = request.form['cur_dir']
         if path=="/":
             return redirect('/')
+        # cur_user = functions.retrieveUserInfo(session['email'])
         dir_list = functions.get_directories_from_datastore_(path)
         file_list = functions.get_files_from_datastore_(path)
         return render_template('index.html', error_message="some error occured",cur_dir = path,dir_list = dir_list,file_list =file_list)
@@ -70,14 +72,14 @@ def go_to_previous_directory():
         cur_dir = ""
         for i in range(len(splitted_dir)-2):
             cur_dir = cur_dir + splitted_dir[i]+"/"
-        print(cur_dir)
+        # print(cur_dir)
         if cur_dir == "/":
             return redirect('/')
-        cur_user = functions.retrieveUserInfo(session['email'])
+        # cur_user = functions.retrieveUserInfo(session['email'])
         dir_list = functions.get_directories_from_datastore_(cur_dir)
         file_list = functions.get_files_from_datastore_(cur_dir)
         return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
-        
+
 
 @app.route('/change_dir',methods=['POST','GET'])
 def change_dir():
@@ -86,7 +88,7 @@ def change_dir():
     else:
         cur_dir = request.form['cur_dir']
         directory_name = request.form['directory_name']
-        cur_user = functions.retrieveUserInfo(session['email'])
+        # cur_user = functions.retrieveUserInfo(session['email'])
         dir_list = functions.get_directories_from_datastore_(cur_dir+directory_name)
         file_list = functions.get_files_from_datastore_(cur_dir+directory_name)
         return render_template('index.html', error_message="some error occured",cur_dir = cur_dir+directory_name,dir_list = dir_list,file_list =file_list)
@@ -99,18 +101,19 @@ def delete_directory():
     else:
         cur_dir = request.form['cur_dir']
         dir_name = request.form['dir_name']
-        root_dir = functions.get_root_directory(session['email'])
+        root_dir = session['root_directory']
         blob = functions.blobList(str(root_dir)+cur_dir+dir_name)
         # storage.Client().get_bucket(local_constants.PROJECT_STORAGE_BUCKET).blob("adil/").delete()
 
         if functions.delete_directory_from_datastore(cur_dir,dir_name,str(root_dir)+cur_dir):
             functions.delete_directory_or_file_from_cloud_storage(blob)
+            # cur_user = functions.retrieveUserInfo(session['email'])
             dir_list = functions.get_directories_from_datastore_(cur_dir)
             file_list = functions.get_files_from_datastore_(cur_dir)
             return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
         else:
             return render_template('show_message.html',msg = "Directory Contains some file/folders, Please delete them first.",cur_dir = cur_dir)
-    
+
 
 @app.route('/upload_file', methods=['post','GET'])
 def uploadFileHandler():
@@ -121,14 +124,15 @@ def uploadFileHandler():
         if file.filename == '':
             return "alert('Please select a file First')"
         cur_dir = request.form['cur_dir']
-        cur_user = functions.retrieveUserInfo(session['email'])
-        if functions.check_existance_of_file(cur_dir,file.filename,cur_user) == False:
-            root_dir = cur_user['root_directory']
+        # cur_user = functions.retrieveUserInfo(session['email'])
+        if functions.check_existance_of_file(cur_dir,file.filename) == False:
+            root_dir = session['root_directory']
             path = root_dir+cur_dir
             functions.addFile(file,path)
             functions.create_file_in_datastore(file.filename,cur_dir,"no")
             if cur_dir == "/":
                 return redirect('/')
+            # cur_user = functions.retrieveUserInfo(session['email'])
             dir_list = functions.get_directories_from_datastore_(cur_dir)
             file_list = functions.get_files_from_datastore_(cur_dir)
             return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
@@ -144,10 +148,10 @@ def delete_file():
     else:
         file_name = request.form['file_name']
         cur_dir = request.form['cur_dir']
-        cur_user = functions.retrieveUserInfo(session['email'])
-        root_dir = cur_user['root_directory']
+        # cur_user = functions.retrieveUserInfo(session['email'])
+        root_dir = session['root_directory']
         blob = storage.Client().get_bucket(local_constants.PROJECT_STORAGE_BUCKET).blob(root_dir+cur_dir+file_name)
-        functions.delete_file_from_datastore(cur_user,cur_dir,file_name)
+        functions.delete_file_from_datastore(cur_dir,file_name)
         blob.delete()
         if cur_dir == "/":
                 return redirect('/')
@@ -160,8 +164,7 @@ def check_duplicates_entire_storage():
     if request.method == 'GET':
         return redirect('/')
     else:
-        cur_user = functions.retrieveUserInfo(session['email'])
-        duplicates = functions.get_duplicates(cur_user['root_directory']+"/")
+        duplicates = functions.get_duplicates(session['root_directory']+"/")
         duplicates.sort(key=lambda x: x.md5_hash)
         return render_template('duplicates.html',msg="Duplicates in Entire User Storage",cur_dir = "/",duplicates = duplicates)
 
@@ -171,8 +174,7 @@ def check_duplicates_in_current_directory():
         return redirect('/')
     else:
         cur_dir = request.form['cur_dir']
-        cur_user = functions.retrieveUserInfo(session['email'])
-        duplicates = functions.get_duplicates_within_directory(cur_user['root_directory']+cur_dir)
+        duplicates = functions.get_duplicates_within_directory(session['root_directory']+cur_dir)
         duplicates.sort(key=lambda x: x.md5_hash)
         return render_template('duplicates.html',msg="Duplicates in "+cur_dir,cur_dir=cur_dir,duplicates = duplicates)
 
@@ -181,10 +183,9 @@ def download_file():
     if request.method == 'GET':
         return redirect('/')
     else:
-        cur_user = functions.retrieveUserInfo(session['email'])
         file_name = request.form['file_name']
         cur_dir = request.form['cur_dir']
-        return Response(functions.downloadBlob(cur_user['root_directory']+cur_dir+file_name), mimetype='application/octet-stream', headers={"Content-Disposition": "filename="+file_name})
+        return Response(functions.downloadBlob(session['root_directory']+cur_dir+file_name), mimetype='application/octet-stream', headers={"Content-Disposition": "filename="+file_name})
 
 @app.route('/download_shared_file',methods=['POST','GET'])
 def download_shared_file():
@@ -204,8 +205,7 @@ def share_file():
         file_name = request.form['file_name']
         cur_dir = request.form['cur_dir']
         users = functions.get_all_users()
-        cur_user = functions.retrieveUserInfo(session['email'])
-        return render_template('share_file.html',cur_dir = cur_user['root_directory']+cur_dir,path=cur_dir, file_name = file_name,users = users)
+        return render_template('share_file.html',cur_dir = session['root_directory']+cur_dir,path=cur_dir, file_name = file_name,users = users)
 
 @app.route('/share_file_now',methods=['POST','GET'])
 def share_file_now():
@@ -225,7 +225,7 @@ def share_file_now():
             path = path + s +"/"
         functions.store_shared_file_path(cur_dir+file_name,user_selected)
         return render_template('show_message.html',msg = "Shared Successfully",cur_dir = path)
-    
+
 
 @app.route('/',methods = ['POST', 'GET'])
 def root():
@@ -234,24 +234,32 @@ def root():
     dir_list = []
     file_list = []
     shared_files = []
+    user_info = None
     if id_token:
         try:
-            claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
-            user_info = functions.retrieveUserInfo(claims['email'])
-            if user_info == None:
-                root_directory_id = functions.createUserInfo(claims)
-                functions.create_directory_in_cloud_storage("","",str(root_directory_id)+"/")
-            user_info = functions.retrieveUserInfo(claims['email'])
-            session['name'] = claims['name']
-            session['email'] = claims['email']
+            if session.get('name') is None:
+                claims = google.oauth2.id_token.verify_firebase_token(id_token, firebase_request_adapter)
+                user_info = functions.retrieveUserInfo(claims['email'])
+                if user_info == None:
+                    root_directory_id = functions.createUserInfo(claims)
+                    functions.create_directory_in_cloud_storage("","",str(root_directory_id)+"/")
+                    session['root_directory'] = root_directory_id
+                # user_info = functions.retrieveUserInfo(claims['email'])
+                session['name'] = claims['name']
+                session['email'] = claims['email']
+                session['root_directory'] = user_info['root_directory']
             dir_list = functions.get_directories_from_datastore_("/")
+            # print(list(dir_list)[0]['directory_name'])
             file_list = functions.get_files_from_datastore_("/")
+            # print("got files")
             shared_files = functions.get_shared_files()
+            # print("got sharedfiles")
         except ValueError as exc:
             error_message = str(exc)
     else:
         session['name'] = None
         session['email'] = None
+        session['root_directory'] = None
     return render_template('index.html', error_message=error_message,cur_dir = "/",dir_list = dir_list,file_list =file_list,shared_files = shared_files)
 
 

@@ -12,10 +12,27 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <link type="text/css" rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
     <script src="/static/scripts.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">/
+    <script>
+        var timeout;
+		function startLoad() {
+			$('#loading').html('<img src="http://rpg.drivethrustuff.com/shared_images/ajax-loader.gif" id="loader"//>');
+			clearTimeout(timeout);
+			timeout = setTimeout(loaded, 1500);
+		}
+    </script>
+    <style>
+        #loader {
+			width: 20%;
+			position: fixed;
+			left: 35%;
+    		top: 35%;
+		}
+    </style>
 </head>
 
 <body>
+    <div id='loading'></div>
     <div id="myModal" class="modal">
         <div class="modal-content">
         <div class="modal-header">
@@ -30,7 +47,7 @@
             <h3> </h3>
         </div>
         </div>
-    
+
     </div>
     <div align="center" >
         <div style="width: 60%;">
@@ -50,12 +67,12 @@
                 <tr>
                     <td colspan="2">
                         <form action="/check_duplicates_entire_storage" method="POST">
-                            <button type="submit" class="btn btn-light form-control"><i class="fa fa-check-square-o" aria-hidden="true"></i> check duplicates from entire storage</button>
+                            <button type="submit" onclick="startLoad()" class="btn btn-light form-control"><i class="fa fa-check-square-o" aria-hidden="true"></i> check duplicates from entire storage</button>
                         </form>
                     </td>
                     <td>
                         <form action="/" method="GET">
-                            <button type="submit" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
+                            <button type="submit" onclick="startLoad()" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
                         </form>
                     </td>
                 </tr>
@@ -64,7 +81,7 @@
                 <h2 {% if msg == "Shared Successfully" %} style='color: green;' {% else %}style="color: red;"{% endif %}>{{ msg }}</h2>
                 <form action="/go_back" method="POST">
                     <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                    <button type="submit" class="btn btn-info"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Go Back</button>
+                    <button type="submit" onclick="startLoad()" class="btn btn-info"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Go Back</button>
                 </form>
             {% elif error_message %}
             <p>Error Message: {{ error_message }}</p>

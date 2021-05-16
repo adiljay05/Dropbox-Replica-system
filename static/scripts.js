@@ -11,6 +11,7 @@ var uiConfig = {
  firebase.auth.EmailAuthProvider.PROVIDER_ID
  ]
 };
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
 firebase.auth().onAuthStateChanged(function(user) {
  if(user) {
  document.getElementById('sign-out').hidden = false;
