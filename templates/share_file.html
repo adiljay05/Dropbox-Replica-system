@@ -51,25 +51,25 @@
                     <tr>
                         <td colspan="2">
                             <form action="/check_duplicates_entire_storage" method="POST">
-                                <button type="submit" class="btn btn-light form-control" onclick="startLoad()" value=""><i class="fa fa-file" aria-hidden="true"></i> check duplicates from entire storage </button>
+                                <button type="submit" class="btn btn-warning form-control" onclick="startLoad()" value=""><i class="fa fa-file" aria-hidden="true"></i> check duplicates from entire storage </button>
                             </form>
                         </td>
                         <td>
                             <form action="/go_back" method="POST">
                                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                                <button type="submit" onclick="startLoad()" class="btn btn-light form-control"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Go Back</button>
+                                <button type="submit" onclick="startLoad()" class="btn btn-warning form-control"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Go Back</button>
                             </form>
                         </td>
                         <td colspan="">
                             <form action="/" method="GET">
-                                <button type="submit" onclick="startLoad()" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
+                                <button type="submit" onclick="startLoad()" class="btn btn-warning"><i class="fa fa-home"></i> Home</button>
                             </form>
                         </td>
                     </tr>
                     </table>
                     <hr>
                     <h2>Share File: {{ file_name }} with user</h2>
-                    <table class="table" style="text-align: center;">
+                    <table class="table table-bordered" style="text-align: center;">
                         <form action="/share_file_now" method="POST">
                             <input type="hidden" name="file_name" value="{{ file_name }}">
                             <input type="hidden" name="cur_dir" value="{{ cur_dir }}">

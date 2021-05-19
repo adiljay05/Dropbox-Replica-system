@@ -124,21 +124,22 @@ def uploadFileHandler():
         if file.filename == '':
             return "alert('Please select a file First')"
         cur_dir = request.form['cur_dir']
+        root_dir = session['root_directory']
+        path = root_dir+cur_dir
         # cur_user = functions.retrieveUserInfo(session['email'])
         if functions.check_existance_of_file(cur_dir,file.filename) == False:
-            root_dir = session['root_directory']
-            path = root_dir+cur_dir
             functions.addFile(file,path)
             functions.create_file_in_datastore(file.filename,cur_dir,"no")
             if cur_dir == "/":
                 return redirect('/')
             # cur_user = functions.retrieveUserInfo(session['email'])
-            dir_list = functions.get_directories_from_datastore_(cur_dir)
-            file_list = functions.get_files_from_datastore_(cur_dir)
-            return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
         else:
-            return render_template('show_message.html',msg = "File with current name already exists. If you want to test """
-                                    "duplications within same directory, upload after renaming the file as I'm checking on the basis of MD5 hash",cur_dir = cur_dir)
+            functions.addFile(file,path)
+        dir_list = functions.get_directories_from_datastore_(cur_dir)
+        file_list = functions.get_files_from_datastore_(cur_dir)
+        return render_template('index.html', error_message="some error occured",cur_dir = cur_dir,dir_list = dir_list,file_list =file_list)
+            # return render_template('show_message.html',msg = "File with current name already exists. If you want to test """
+            #                         "duplications within same directory, upload after renaming the file as I'm checking on the basis of MD5 hash",cur_dir = cur_dir)
 
 
 @app.route('/delete_file',methods=['POST','GET'])

@@ -48,6 +48,24 @@
     		top: 35%;
 		}
     </style>
+    <script>
+        var file_count = 0;
+        function check_file_names(){
+            file_name = document.getElementById('file_name').value;
+            name = file_name.split(/(\\|\/)/g).pop();
+            for (i=1;i<=file_count;i++){
+                if (document.getElementById('file_name'+i).value==name){
+                    if(confirm("File Name already exists, Do you want to overwrite?")){
+                        startLoad();
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    </script>
 </head>
 
 <body>
@@ -58,7 +76,6 @@
             <span class="close">&times;</span>
         </div>
         <div class="modal-body">
-            <p><svg width="20" height="20"><rect width="20" height="20" style="fill:#C3E6CB;" /></svg> Files</p>
             <p><svg width="20" height="20"><rect width="20" height="20" style="fill:#28963C;" /></svg> Shared Files</p>
             <p>I'm showing shared files only in the root directory of a user.</p>
         </div>
@@ -90,31 +107,31 @@
                         <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
                         <td><button type="submit" onclick="return check_dir(event);startLoad();" class="btn btn-success"><i class="fa fa-plus"></i> Add</button></td>
                     </form>
-                    <form action="/upload_file" method="post" enctype="multipart/form-data">
+                    <form action="/upload_file" method="post" onsubmit="return check_file_names();" enctype="multipart/form-data">
                         <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                        <td colspan="2"><input type="file" required class="form-control" name="file_name" /></td>
-                        <td><button class="btn btn-success" onclick="startLoad()" type="submit"><i class="fa fa-upload"></i> Upload</button></td>
+                        <td colspan="2"><input type="file" required class="form-control" id="file_name" name="file_name" /></td>
+                        <td><button class="btn btn-success" type="submit"><i class="fa fa-upload"></i> Upload</button></td>
                     </form>
                 </tr>
                 <tr>
                     <td colspan="2">
                         <form action="/check_duplicates_entire_storage" method="POST">
-                            <button type="submit" onclick="startLoad()" class="btn btn-light form-control"><i class="fa fa-check-square-o" aria-hidden="true"></i> check duplicates from entire storage</button>
+                            <button type="submit" onclick="startLoad()" class="btn btn-warning form-control"><i class="fa fa-check-square-o" aria-hidden="true"></i> check duplicates from entire storage</button>
                         </form>
                     </td>
                     <td colspan="1">
                         <form action="/check_duplicates_in_current_directory" method="POST">
                             <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                            <button type="submit" class="btn btn-light form-control" onclick="startLoad()" value=""><i class="fa fa-check-square-o" aria-hidden="true"></i> check duplicates in current directory</button>
+                            <button type="submit" class="btn btn-warning form-control" onclick="startLoad()" value=""><i class="fa fa-check-square-o" aria-hidden="true"></i> check duplicates in current directory</button>
                         </form>
                     </td>
                     <td>
                         <form action="/" method="GET">
-                            <button type="submit" onclick="startLoad()" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
+                            <button type="submit" onclick="startLoad()" class="btn btn-warning"><i class="fa fa-home"></i> Home</button>
                         </form>
                     </td>
                     <td>
-                        <button id="myBtn" class="btn btn-light"><i class="fa fa-info-circle"></i> Click Me First</button>
+                        <button id="myBtn" class="btn btn-warning"><i class="fa fa-info-circle"></i> Click Me First</button>
                     </td>
                 </tr>
                 </table>
@@ -122,7 +139,7 @@
                 <div align=left class="table">
                     <h3>Current Directory: {{ cur_dir }}</h3>
                 </div>
-                <table class="table table-success table-bordered">
+                <table class="table table-dark table-bordered table-striped">
                     <th>Sr. No.</th>
                     <th>Name</th>
                     <th>File Type</th>
@@ -179,7 +196,7 @@
                         </td>
                         <td>
                             <form action="/delete_file" method="POST">
-                                <input type="hidden" name="file_name" value="{{ i['file_name'] }}">
+                                <input type="hidden" name="file_name" id="file_name{{loop.index}}" value="{{ i['file_name'] }}">
                                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
                                 <button type="submit" onclick="startLoad()" class="btn btn-danger"><i class="fa fa-trash"></i> Delete </button>
                             </form>
@@ -191,6 +208,7 @@
                                 <button type="submit" onclick="startLoad()" class="btn btn-info" ><i class="fa fa-share"></i> Share</button>
                             </form>
                         </td>
+                        <script>file_count++;</script>
                     </tr>
                     {% if vars.update({'count': vars.count + 1}) %}{% endif %}
                     {% endfor %}

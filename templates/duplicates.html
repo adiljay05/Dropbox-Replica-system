@@ -51,25 +51,27 @@
                     <tr>
                         <td colspan="2">
                             <form action="/check_duplicates_entire_storage" method="POST">
-                                <button type="submit" onclick="startLoad()" class="btn btn-light form-control"><i class="fa fa-check-square-o" aria-hidden="true"></i> check duplicates from entire storage</button>
+                                <button type="submit" onclick="startLoad()" class="btn btn-warning form-control"><i class="fa fa-check-square-o" aria-hidden="true"></i> check duplicates from entire storage</button>
                             </form>
                         </td>
                         <td>
                             <form action="/go_back" method="POST">
                                 <input type="hidden" name="cur_dir" value="{{ cur_dir }}">
-                                <button type="submit" onclick="startLoad()" class="btn btn-light form-control"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Go Back</button>
+                                <button type="submit" onclick="startLoad()" class="btn btn-warning form-control"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Go Back</button>
                             </form>
                         </td>
                         <td colspan="">
                             <form action="/" method="GET">
-                                <button type="submit" onclick="startLoad()" class="btn btn-light"><i class="fa fa-home"></i> Home</button>
+                                <button type="submit" onclick="startLoad()" class="btn btn-warning"><i class="fa fa-home"></i> Home</button>
                             </form>
                         </td>
                     </tr>
                     </table>
                     <hr>
                     <h2>{{ msg }}</h2>
-                    <table class="table table-success">
+                    <font color=red>* Duplicates are calculated based upon md5 hash</font><br>
+                    <font color=red>* Duplicate files have same background</font>
+                    <table class="table table-success table-bordered">
                         <th>Sr. No.</th>
                         <th>File Name</th>
                         {% if msg == 'Duplicates in Entire User Storage' %}
@@ -88,7 +90,7 @@
                                         {% if vars.update({'check': 0}) %} {% endif %}
                                     {% endif %}
                                 {% endif %}
-                                <tr {% if vars.check == 1 %} class="bg-light" {% else %} class="table-info" {% endif %}>
+                                <tr {% if vars.check == 1 %} class="table-primary" {% else %} class="table-warning" {% endif %}>
                                     <td>
                                         {{ loop.index }}
                                     </td>
@@ -121,7 +123,6 @@
                 <p>Error Message: {{ error_message }}</p>
                 {% endif %}
             </div>
-            <font color=red>* Duplicates are calculated based upon md5 hash</font>
         </div>
     </div>
 </body>
